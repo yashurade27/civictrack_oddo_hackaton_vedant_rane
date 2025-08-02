@@ -13,9 +13,13 @@ const ReportCreateMap = dynamic(() => import("@/components/Map/ReportCreateMap")
 export default function HomePage() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isAnonymous, setIsAnonymous] = useState(false);
+
   const [location, setLocation] = useState<{
     latitude: number;
     longitude: number;
+    address: string;
+    locality: string;
+    postalCode: string;
   } | null>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,8 +39,8 @@ export default function HomePage() {
         {/* Map Section */}
         <div className="md:w-2/3 w-full h-64 md:h-auto">
           <ReportCreateMap
-            onLocationChange={({ latitude, longitude }) => {
-              setLocation({ latitude, longitude });
+            onLocationChange={(data) => {
+              setLocation(data);
             }}
           />
         </div>
@@ -56,6 +60,7 @@ export default function HomePage() {
             isAnonymous={isAnonymous}
             setIsAnonymous={setIsAnonymous}
             userId={undefined} // or pass actual userId
+            location={location} // ✅ send full location object
           />
         </div>
       </div>

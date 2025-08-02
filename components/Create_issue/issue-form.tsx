@@ -13,13 +13,20 @@ import { createReport } from "@/app/server-actions/createReport";
 import { uploadToCloudinary } from "@/lib/cloudinaryUpload";
 import ReportCreateMap from "../Map/ReportCreateMap";
 
-interface IssueFormProps {
+export interface IssueFormProps {
   selectedFiles: File[];
-  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onRemoveFile: (index: number) => void;
   isAnonymous: boolean;
-  setIsAnonymous: (value: boolean) => void;
+  setIsAnonymous: React.Dispatch<React.SetStateAction<boolean>>;
   userId?: string;
+  location: {
+    latitude: number;
+    longitude: number;
+    address: string;
+    locality: string;
+    postalCode: string;
+  } | null;
 }
 
 export function IssueForm({

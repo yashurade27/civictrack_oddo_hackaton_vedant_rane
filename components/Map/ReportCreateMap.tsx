@@ -17,7 +17,9 @@ type Props = {
   onLocationChange: (data: {
     latitude: number;
     longitude: number;
-    locationName: string;
+    address: string;
+    locality: string;
+    postalCode: string;
   }) => void;
 };
 
@@ -40,7 +42,9 @@ function LocationMarker({
   onLocationChange: (coords: {
     latitude: number;
     longitude: number;
-    locationName: string;
+    address: string;
+    locality: string;
+    postalCode: string;
   }) => void;
 }) {
   useMapEvents({
@@ -48,25 +52,36 @@ function LocationMarker({
       const coords = e.latlng;
       setPosition(coords);
 
-      // 🔄 Reverse geocode to get location name
       try {
         const res = await fetch(
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`
         );
         const data = await res.json();
-        const locationName = data.display_name || 'Unknown Location';
+
+        const address = data.display_name || 'Unknown Location';
+        const locality =
+          data.address.city ||
+          data.address.town ||
+          data.address.village ||
+          data.address.suburb ||
+          '';
+        const postalCode = data.address.postcode || '';
 
         onLocationChange({
           latitude: coords.lat,
           longitude: coords.lng,
-          locationName,
+          address,
+          locality,
+          postalCode,
         });
       } catch (err) {
         console.error('Reverse geocoding failed:', err);
         onLocationChange({
           latitude: coords.lat,
           longitude: coords.lng,
-          locationName: 'Unknown Location',
+          address: 'Unknown Location',
+          locality: '',
+          postalCode: '',
         });
       }
     },
@@ -127,14 +142,42 @@ export default function ReportCreateMap({ onLocationChange }: Props) {
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
 
-  const handleSearchLocation = (lat: number, lng: number, locationName: string) => {
+  const handleSearchLocation = async (lat: number, lng: number, locationName: string) => {
     const newPos = { lat, lng };
     setPosition(newPos);
-    onLocationChange({
-      latitude: lat,
-      longitude: lng,
-      locationName,
-    });
+
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+      );
+      const data = await res.json();
+
+      const address = data.display_name || locationName;
+      const locality =
+        data.address.city ||
+        data.address.town ||
+        data.address.village ||
+        data.address.suburb ||
+        '';
+      const postalCode = data.address.postcode || '';
+
+      onLocationChange({
+        latitude: lat,
+        longitude: lng,
+        address,
+        locality,
+        postalCode,
+      });
+    } catch (err) {
+      console.error('Reverse geocoding failed (search):', err);
+      onLocationChange({
+        latitude: lat,
+        longitude: lng,
+        address: locationName,
+        locality: '',
+        postalCode: '',
+      });
+    }
 
     if (mapInstance) {
       mapInstance.setView(newPos, 15);
