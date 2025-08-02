@@ -1,13 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { MapPin, Clock, Tag, FileText, Activity } from "lucide-react";
+import { MapPin, Clock, Tag, Activity } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { UploadSection } from "./UploadSection";
 import { ActivityTimeline } from "./ActivityTimeline";
-
+import Navbar from "@/components/Home_Screen/Navbar";
 
 const statusVariants = {
   Reported: "destructive",
@@ -42,6 +42,9 @@ export function IssueDetail({
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-background to-muted/20 overflow-auto">
+      {/* ✅ Navbar */}
+      <Navbar />
+
       <div className="container mx-auto px-6 py-8 h-full">
         <Card className="w-full max-w-6xl mx-auto shadow-2xl border-0 bg-card/50 backdrop-blur-sm">
           <CardContent className="p-8">
@@ -62,29 +65,29 @@ export function IssueDetail({
 
             {/* Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Main Content - Left Side */}
+              {/* Main Content */}
               <div className="lg:col-span-2 space-y-8">
                 {/* Category Section */}
-<div className="text-sm flex items-center gap-4"> {/* Changed from text-s to text-sm */}
-  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 border border-primary/20">
-    <Tag className="w-5 h-5 text-primary" />
-  </div>
-  <div className="space-y-1">
-    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-      Category
-    </p>
-    <Badge variant="outline" className="font-semibold text-base"> {/* Increased badge text */}
-      {category}
-    </Badge>
-  </div>
-</div>
+                <div className="text-sm flex items-center gap-4">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 border border-primary/20">
+                    <Tag className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                      Category
+                    </p>
+                    <Badge variant="outline" className="font-semibold text-base">
+                      {category}
+                    </Badge>
+                  </div>
+                </div>
 
                 <Separator />
 
                 {/* Description Section */}
-                <Card className="border-l-4 border-l-primary">
+                <Card className="border-l">
                   <CardContent className="p-1">
-                    <p className="text-base leading-relaxed text-muted-foreground">
+                    <p className="text-base leading-relaxed text-black">
                       {description}
                     </p>
                   </CardContent>
@@ -92,7 +95,7 @@ export function IssueDetail({
 
                 <Separator />
 
-                {/* Report Date Section */}
+                {/* Reported Date */}
                 <div className="flex items-center gap-4">
                   <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-orange-100 border border-orange-200 dark:bg-orange-900/20 dark:border-orange-800/30">
                     <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
@@ -109,7 +112,7 @@ export function IssueDetail({
 
                 <Separator />
 
-                {/* Activity Timeline Section */}
+                {/* Activity Timeline */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800/30">
@@ -125,14 +128,14 @@ export function IssueDetail({
                 </div>
               </div>
 
-              {/* Sidebar - Right Side */}
+              {/* Sidebar */}
               <div className="lg:col-span-1 p-6 space-y-6">
-                {/* Status Section */}
+                {/* Status */}
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Status
                   </p>
-                  <Badge 
+                  <Badge
                     variant={statusVariants[status]}
                     className="text-sm font-semibold px-4 py-2 shadow-sm"
                   >
@@ -142,7 +145,7 @@ export function IssueDetail({
 
                 <Separator />
 
-                {/* Location Section */}
+                {/* Location */}
                 <div className="space-y-3">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Location

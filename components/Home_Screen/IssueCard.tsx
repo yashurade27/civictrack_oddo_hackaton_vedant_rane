@@ -14,7 +14,7 @@ interface IssueCardProps {
   category: string;
   status: "Reported" | "In Progress" | "Resolved";
   date: string;
-  location: string;  // ✅ Ensure location is passed as place name
+  location: string;
   distance: string;
 }
 
@@ -64,7 +64,7 @@ export function IssueCard(issue: IssueCardProps) {
         <div className="text-xs text-gray-500 flex items-center justify-between pt-2">
           <span className="flex items-center gap-1">
             <MapPin className="h-4 w-4" />
-            {issue.location || "Unknown Location"} {/* ✅ Show place name */}
+            {issue.location || "Unknown Location"}
           </span>
           <span>{issue.distance}</span>
         </div>
