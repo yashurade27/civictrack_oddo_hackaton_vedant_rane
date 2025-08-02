@@ -12,6 +12,7 @@ import { Category, categoryLabels } from "@/types/category";
 import { Bug } from "lucide-react";
 import { createReport } from "@/app/server-actions/createReport";
 import { uploadToCloudinary } from "@/lib/cloudinaryUpload";
+import ReportCreateMap from "../Map/ReportCreateMap";
 
 interface IssueFormProps {
   selectedFiles: File[];

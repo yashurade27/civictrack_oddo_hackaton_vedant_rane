@@ -1,17 +1,17 @@
 "use client";
 
 import Image from "next/image";
+import { MapPin, Clock, Tag, FileText, Activity } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin } from "lucide-react";
-import { UploadSection } from "./UploadSection";
+import { Separator } from "@/components/ui/separator";
 import { ActivityTimeline } from "./ActivityTimeline";
-import { useEffect, useState } from "react";
 
-const statusColorMap = {
-  Reported: "bg-red-500 text-white",
-  "In Progress": "bg-yellow-400 text-black",
-  Resolved: "bg-green-500 text-white",
-};
+const statusVariants = {
+  Reported: "destructive",
+  "In Progress": "default",
+  Resolved: "secondary",
+} as const;
 
 interface IssueDetailProps {
   imageUrl: string;
@@ -19,7 +19,6 @@ interface IssueDetailProps {
   description: string;
   category: string;
   status: "Reported" | "In Progress" | "Resolved";
-  date: string;
   location: string;
   activity: string[];
 }
@@ -30,51 +29,135 @@ export function IssueDetail({
   description,
   category,
   status,
-  date,
   location,
   activity,
 }: IssueDetailProps) {
-  const [currentDateTime, setCurrentDateTime] = useState<string>("");
-
-  useEffect(() => {
-    const now = new Date();
-    const formatted = now.toLocaleString("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-    setCurrentDateTime(formatted);
-  }, []);
+  const currentDate = new Date().toLocaleDateString("en-IN", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-        <h2 className="text-2xl font-bold">{title}</h2>
-        <span className={`text-sm px-3 py-1 rounded-full ${statusColorMap[status]}`}>
-          {status}
-        </span>
-      </div>
+    <div className="fixed inset-0 bg-gradient-to-br from-background to-muted/20 overflow-auto">
+      <div className="container mx-auto px-6 py-8 h-full">
+        <Card className="w-full max-w-6xl mx-auto shadow-2xl border-0 bg-card/50 backdrop-blur-sm">
+          <CardContent className="p-8">
+            {/* Image Section */}
+            <div className="mb-8">
+              <Card className="overflow-hidden shadow-lg">
+                <div className="relative w-full h-80 lg:h-96">
+                  <Image
+                    src={imageUrl}
+                    alt="Issue Image"
+                    fill
+                    className="object-contain"
+                    style={{ objectPosition: "center" }}
+                  />
+                </div>
+              </Card>
+            </div>
 
-      <div className="w-full h-64 relative rounded-lg overflow-hidden border border-gray-300">
-        <Image src={imageUrl} alt="Issue Image" fill className="object-cover" />
-      </div>
+            {/* Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Main Content - Left Side */}
+              <div className="lg:col-span-2 space-y-8">
+                {/* Category Section */}
+<div className="text-sm flex items-center gap-4"> {/* Changed from text-s to text-sm */}
+  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 border border-primary/20">
+    <Tag className="w-5 h-5 text-primary" />
+  </div>
+  <div className="space-y-1">
+    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+      Category
+    </p>
+    <Badge variant="outline" className="font-semibold text-base"> {/* Increased badge text */}
+      {category}
+    </Badge>
+  </div>
+</div>
 
-      <UploadSection />
+                <Separator />
 
-      <div className="space-y-2">
-        <div className="text-sm text-gray-600 flex items-center gap-2">
-          <MapPin className="w-4 h-4" />
-          {location}
-        </div>
-        <p className="text-base">{description}</p>
-        <div className="text-xs text-muted-foreground">Reported on: {date}</div>
-        <div className="text-xs text-muted-foreground">Viewed at: {currentDateTime}</div>
-      </div>
+                {/* Description Section */}
+                <Card className="border-l-4 border-l-primary">
+                  <CardContent className="p-1">
+                    <p className="text-base leading-relaxed text-muted-foreground">
+                      {description}
+                    </p>
+                  </CardContent>
+                </Card>
 
-      <ActivityTimeline activity={activity || []} />
+                <Separator />
 
-      <div className="flex justify-end gap-2 mt-6">
-        <button className="text-sm px-4 py-2 bg-gray-200 rounded-md">Edit</button>
-        <button className="text-sm px-4 py-2 bg-red-500 text-white rounded-md">Delete</button>
+                {/* Report Date Section */}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-orange-100 border border-orange-200 dark:bg-orange-900/20 dark:border-orange-800/30">
+                    <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Reported on
+                    </p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {currentDate}
+                    </p>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Activity Timeline Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800/30">
+                      <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-foreground">
+                      Activity Timeline
+                    </h2>
+                  </div>
+                  <div className="ml-14">
+                    <ActivityTimeline activity={activity || []} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Sidebar - Right Side */}
+              <div className="lg:col-span-1 p-6 space-y-6">
+                {/* Status Section */}
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Status
+                  </p>
+                  <Badge 
+                    variant={statusVariants[status]}
+                    className="text-sm font-semibold px-4 py-2 shadow-sm"
+                  >
+                    {status}
+                  </Badge>
+                </div>
+
+                <Separator />
+
+                {/* Location Section */}
+                <div className="space-y-3">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Location
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary/10 border border-primary/20">
+                      <MapPin className="w-4 h-4 text-primary" />
+                    </div>
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {location}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
