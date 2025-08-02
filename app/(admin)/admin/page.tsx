@@ -1,33 +1,32 @@
-import { auth, clerkClient } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
+import { auth, clerkClient } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
+import AdminDashboard from './dashboard';
 
 export default async function AdminPage() {
-  const { sessionClaims, userId } = await auth()
-  // THIS IS THE DEMO CODE FOR ADMIN PAGE WHERE ONLY THE ADMIN CAN ACCESS AND SEE THE ADMIN USERS
-  // IDEALLY HERE THE ADMIN CAN MANAGE USERS, ROLES, AND PERMISSIONS
+  const { sessionClaims, userId } = await auth();
 
-  // Only allow admins
+  // ✅ Only allow admins
   if (!userId || sessionClaims?.metadata?.role !== 'admin') {
-    redirect('/')
+    redirect('/');
   }
 
-  // Fetch all users from Clerk
-  const client = await clerkClient()
-  const allUsersResponse = await client.users.getUserList()
-  const adminUsers = allUsersResponse.data.filter(
-    (user) => user.publicMetadata?.role === 'admin'
-  )
+  // ✅ Fetch all users
+  const client = await clerkClient();
+  const allUsersResponse = await client.users.getUserList();
 
-  return (
-    <div>
-      <h1>Admin Dashboard</h1>
-      <ul>
-        {adminUsers.map((user) => (
-          <li key={user.id}>
-            {user.emailAddresses[0]?.emailAddress} — {String(user.publicMetadata.role)}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
+  // ✅ Map and sanitize user data
+  const allUsers = allUsersResponse.data.map((user) => ({
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.emailAddresses[0]?.emailAddress ?? '',
+    createdAt: user.createdAt,
+    isBanned:
+      typeof user.publicMetadata?.isBanned === 'boolean'
+        ? user.publicMetadata.isBanned
+        : false,
+    role: user.publicMetadata?.role === 'admin' ? 'admin' : 'user', // ✅ correct dynamic role
+  }));
+
+  return <AdminDashboard users={allUsers} />;
 }

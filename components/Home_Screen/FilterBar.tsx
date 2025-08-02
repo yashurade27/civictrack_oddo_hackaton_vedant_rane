@@ -52,14 +52,15 @@ export function FilterBar() {
           </SelectContent>
         </Select>
 
+        {/* Distance filter with commented out options */}
         <Select>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Distance" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">1 km</SelectItem>
+            {/* <SelectItem value="1">1 km</SelectItem>
             <SelectItem value="3">3 km</SelectItem>
-            <SelectItem value="5">5 km</SelectItem>
+            <SelectItem value="5">5 km</SelectItem> */}
           </SelectContent>
         </Select>
 
@@ -68,3 +69,4 @@ export function FilterBar() {
     </div>
   );
 }
+

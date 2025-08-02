@@ -24,9 +24,9 @@ export async function getReports() {
     date: new Date(r.createdAt).toLocaleDateString("en-IN", {
       month: "short",
       day: "numeric",
-    }),
+    }), // ✅ already safe
     location: r.locality || r.address || "Unknown",
-    distance: "–", // Optional: implement geo distance calc later
+    distance: "–", // optional
   }));
 }
 
@@ -39,6 +39,6 @@ function getStatusLabel(status: string): "Reported" | "In Progress" | "Resolved"
     case "RESOLVED":
       return "Resolved";
     default:
-      return "Reported"; // Fallback
+      return "Reported";
   }
 }
