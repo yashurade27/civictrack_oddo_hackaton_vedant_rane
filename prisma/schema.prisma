@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../lib/generated/prisma"
 }
 
 datasource db {
@@ -19,25 +12,101 @@ enum Role {
   admin
 }
 
+enum Status {
+  REPORTED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum Category {
+  ROADS
+  LIGHTING
+  WATER_SUPPLY
+  CLEANLINESS
+  PUBLIC_SAFETY
+  OBSTRUCTIONS
+}
+
 model User {
-  id           String   @id @default(cuid())
-  clerkId      String   @unique
-  email        String?  @unique
-  role         Role     @default(user)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  // Example relation place-holder:
-  messages     Message[]
+  id        String    @id @default(uuid())
+  clerkId   String    @unique             // External auth ID (e.g., Clerk)
+  email     String?   @unique
+  role      Role      @default(user)
+  isBanned  Boolean   @default(false)
+  name      String?
+  reports   Report[]
+  comments  Comment[]
+  spamFlags SpamFlag[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([role])
 }
 
-model Message {
-  id           Int      @id @default(autoincrement())
-  user         User     @relation(fields: [userClerkId], references: [clerkId])
-  userClerkId  String
-  content      String
-  createdAt    DateTime @default(now())
+model Report {
+  id           String     @id @default(uuid())
+  title        String
+  description  String
+  category     Category
+  status       Status     @default(REPORTED)
+
+  // Google Maps Fields
+  latitude     Float
+  longitude    Float
+  address      String?            // Formatted address (from reverse geocoding)
+  placeId      String?            // Google Place ID
+  locality     String?            // City / Neighborhood
+  postalCode   String?            // ZIP / postal code
+
+  user         User?      @relation(fields: [userId], references: [id])
+  userId       String?
+
+  photos       Photo[]
+  comments     Comment[]
+  spamFlags    SpamFlag[]
+  logs         StatusLog[]
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([placeId])
+  @@index([latitude, longitude])
 }
 
+model Photo {
+  id        String   @id @default(uuid())
+  url       String
+  report    Report   @relation(fields: [reportId], references: [id])
+  reportId  String
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  report    Report   @relation(fields: [reportId], references: [id])
+  reportId  String
+  createdAt DateTime @default(now())
+}
+
+model SpamFlag {
+  id        String   @id @default(uuid())
+  report    Report   @relation(fields: [reportId], references: [id])
+  reportId  String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+}
+
+model StatusLog {
+  id        String   @id @default(uuid())
+  status    Status
+  timestamp DateTime @default(now())
+  report    Report   @relation(fields: [reportId], references: [id])
+  reportId  String
+}
 
 
 
