@@ -7,14 +7,14 @@ import { MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface IssueCardProps {
-  id: string; // ✅ Add this so each card can route using issue.id
+  id: string;
   imageUrl: string;
   title: string;
   description: string;
   category: string;
   status: "Reported" | "In Progress" | "Resolved";
   date: string;
-  location: string;
+  location: string;  // ✅ Ensure location is passed as place name
   distance: string;
 }
 
@@ -29,7 +29,7 @@ export function IssueCard(issue: IssueCardProps) {
 
   const handleClick = () => {
     localStorage.setItem("selectedIssue", JSON.stringify(issue));
-    router.push(`/issue-detail/${issue.id}`); // ✅ Dynamic route with ID
+    router.push(`/issue-detail/${issue.id}`);
   };
 
   return (
@@ -64,9 +64,9 @@ export function IssueCard(issue: IssueCardProps) {
         <div className="text-xs text-gray-500 flex items-center justify-between pt-2">
           <span className="flex items-center gap-1">
             <MapPin className="h-4 w-4" />
-            {issue.location}
+            {issue.location || "Unknown Location"} {/* ✅ Show place name */}
           </span>
-          <span>{issue.distance} km</span>
+          <span>{issue.distance}</span>
         </div>
 
         <div className="text-right text-xs text-muted-foreground">{issue.date}</div>

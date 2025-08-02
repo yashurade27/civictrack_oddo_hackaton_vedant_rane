@@ -14,7 +14,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 type Props = {
-  onLocationChange: (coords: { latitude: number; longitude: number }) => void;
+  onLocationChange: (data: {
+    latitude: number;
+    longitude: number;
+    locationName: string;
+  }) => void;
 };
 
 // 🧭 Fix Leaflet icon config
@@ -33,27 +37,55 @@ function LocationMarker({
 }: {
   position: { lat: number; lng: number } | null;
   setPosition: (pos: { lat: number; lng: number }) => void;
-  onLocationChange: (coords: { latitude: number; longitude: number }) => void;
+  onLocationChange: (coords: {
+    latitude: number;
+    longitude: number;
+    locationName: string;
+  }) => void;
 }) {
   useMapEvents({
-    click(e) {
+    click: async (e) => {
       const coords = e.latlng;
       setPosition(coords);
-      onLocationChange({ latitude: coords.lat, longitude: coords.lng });
+
+      // 🔄 Reverse geocode to get location name
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`
+        );
+        const data = await res.json();
+        const locationName = data.display_name || 'Unknown Location';
+
+        onLocationChange({
+          latitude: coords.lat,
+          longitude: coords.lng,
+          locationName,
+        });
+      } catch (err) {
+        console.error('Reverse geocoding failed:', err);
+        onLocationChange({
+          latitude: coords.lat,
+          longitude: coords.lng,
+          locationName: 'Unknown Location',
+        });
+      }
     },
   });
 
   return position ? <Marker position={position} draggable={true} /> : null;
 }
 
-// 🔍 Clean shadcn-ui styled search bar
-function SearchLocationBar({ onSearch }: { onSearch: (lat: number, lng: number) => void }) {
+// 🔍 Search bar
+function SearchLocationBar({
+  onSearch,
+}: {
+  onSearch: (lat: number, lng: number, name: string) => void;
+}) {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async () => {
     if (!query.trim()) return;
-
     setLoading(true);
     try {
       const res = await fetch(
@@ -62,8 +94,8 @@ function SearchLocationBar({ onSearch }: { onSearch: (lat: number, lng: number) 
       const data = await res.json();
 
       if (data && data.length > 0) {
-        const { lat, lon } = data[0];
-        onSearch(parseFloat(lat), parseFloat(lon));
+        const { lat, lon, display_name } = data[0];
+        onSearch(parseFloat(lat), parseFloat(lon), display_name || query);
       } else {
         alert('Location not found.');
       }
@@ -93,12 +125,16 @@ function SearchLocationBar({ onSearch }: { onSearch: (lat: number, lng: number) 
 
 export default function ReportCreateMap({ onLocationChange }: Props) {
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
-  const [mapInstance, setMapInstance] = useState<L.Map | null>(null); // ✅ proper map instance
+  const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
 
-  const handleSearchLocation = (lat: number, lng: number) => {
+  const handleSearchLocation = (lat: number, lng: number, locationName: string) => {
     const newPos = { lat, lng };
     setPosition(newPos);
-    onLocationChange({ latitude: lat, longitude: lng });
+    onLocationChange({
+      latitude: lat,
+      longitude: lng,
+      locationName,
+    });
 
     if (mapInstance) {
       mapInstance.setView(newPos, 15);
@@ -113,7 +149,6 @@ export default function ReportCreateMap({ onLocationChange }: Props) {
         center={[20.5937, 78.9629]}
         zoom={5}
         style={{ height: '400px', width: '100%' }}
-        whenReady={() => {}}
         ref={(map) => {
           if (map && map instanceof L.Map) setMapInstance(map);
         }}
