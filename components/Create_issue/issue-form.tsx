@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from "react";
@@ -32,22 +31,17 @@ export function IssueForm({
 }: IssueFormProps) {
   const [category, setCategory] = useState<Category>();
   const [description, setDescription] = useState('');
-  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null); // ✅ Added
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [locationError, setLocationError] = useState(false);
 
   const handleSubmit = async () => {
-    if (!location || !category) {
-      setLocationError(!location);
-      alert('Please select both a category and a location.');
+    if (!category) {
+      alert('Please select a category.');
       return;
     }
 
     try {
       setIsSubmitting(true);
-      setLocationError(false);
 
-      // ✅ Upload each image to Cloudinary
       const photoUrls: string[] = [];
 
       for (const file of selectedFiles) {
@@ -55,13 +49,13 @@ export function IssueForm({
         photoUrls.push(url);
       }
 
-      // ✅ Submit to DB
+      // 🔴 Since location is removed, use dummy values or handle differently
       await createReport({
         title: categoryLabels[category],
         description,
         category,
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: 0, // or null, depending on your schema
+        longitude: 0,
         userId: isAnonymous ? undefined : userId,
         photoUrls,
       });
@@ -76,7 +70,7 @@ export function IssueForm({
     }
   };
 
-  const isFormValid = !!category && description.trim().length > 0 && location;
+  const isFormValid = !!category && description.trim().length > 0;
 
   return (
     <Card className="h-full">
@@ -103,15 +97,6 @@ export function IssueForm({
           onCheckedChange={setIsAnonymous}
         />
 
-        {/* 📍 Location Selector */}
-        <ReportCreateMap onLocationChange={setLocation} />
-
-        {locationError && (
-          <p className="text-red-500 text-sm -mt-2">
-            📍 Please select a location on the map.
-          </p>
-        )}
-
         <SubmitIssue
           onSubmit={handleSubmit}
           disabled={!isFormValid}
@@ -121,4 +106,3 @@ export function IssueForm({
     </Card>
   );
 }
-

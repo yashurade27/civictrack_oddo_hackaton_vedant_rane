@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
 import { UploadSection } from "./UploadSection";
 import { ActivityTimeline } from "./ActivityTimeline";

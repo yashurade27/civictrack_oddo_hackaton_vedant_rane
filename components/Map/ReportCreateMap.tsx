@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -11,48 +10,8 @@ import {
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// 🔍 Search Bar Component
-function SearchLocationBar({ onSearch }: { onSearch: (lat: number, lng: number) => void }) {
-  const [query, setQuery] = useState('');
-
-  const handleSearch = async () => {
-    if (!query.trim()) return;
-
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
-      );
-      const data = await res.json();
-
-      if (data && data.length > 0) {
-        const { lat, lon } = data[0];
-        onSearch(parseFloat(lat), parseFloat(lon));
-      } else {
-        alert('Location not found.');
-      }
-    } catch (err) {
-      console.error('Location search failed:', err);
-    }
-  };
-
-  return (
-    <div className="mb-2 flex gap-2">
-      <input
-        type="text"
-        className="w-full border rounded px-2 py-1 text-sm"
-        placeholder="Search location..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <button
-        onClick={handleSearch}
-        className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
-      >
-        Search
-      </button>
-    </div>
-  );
-}
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 type Props = {
   onLocationChange: (coords: { latitude: number; longitude: number }) => void;
@@ -87,6 +46,51 @@ function LocationMarker({
   return position ? <Marker position={position} draggable={true} /> : null;
 }
 
+// 🔍 Clean shadcn-ui styled search bar
+function SearchLocationBar({ onSearch }: { onSearch: (lat: number, lng: number) => void }) {
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
+      );
+      const data = await res.json();
+
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        onSearch(parseFloat(lat), parseFloat(lon));
+      } else {
+        alert('Location not found.');
+      }
+    } catch (err) {
+      console.error('Location search failed:', err);
+      alert('Error occurred during search.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mb-4 flex gap-2 items-center">
+      <Input
+        type="text"
+        placeholder="Search location (e.g., Chinchwad)"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="flex-grow"
+      />
+      <Button onClick={handleSearch} disabled={loading}>
+        {loading ? 'Searching...' : 'Search'}
+      </Button>
+    </div>
+  );
+}
+
 export default function ReportCreateMap({ onLocationChange }: Props) {
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null); // ✅ proper map instance
@@ -109,7 +113,7 @@ export default function ReportCreateMap({ onLocationChange }: Props) {
         center={[20.5937, 78.9629]}
         zoom={5}
         style={{ height: '400px', width: '100%' }}
-        whenReady={() => {}} // No-op to satisfy type
+        whenReady={() => {}}
         ref={(map) => {
           if (map && map instanceof L.Map) setMapInstance(map);
         }}
@@ -128,4 +132,3 @@ export default function ReportCreateMap({ onLocationChange }: Props) {
     </div>
   );
 }
-
