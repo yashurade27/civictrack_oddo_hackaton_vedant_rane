@@ -1,16 +1,18 @@
-"use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PhotoUpload } from "./photo-upload";
-import { CategorySelect } from "./category-select";
-import { DescriptionField } from "./description-field";
-import { AnonymousCheckbox } from "./anonymous-checkbox";
-import { SubmitIssue } from "./submit-issue";
-import { Category, categoryLabels } from "@/types/category";
-import { Bug } from "lucide-react";
-import { createReport } from "@/app/server-actions/createReport";
-import { uploadToCloudinary } from "@/lib/cloudinaryUpload";
+'use client';
+
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PhotoUpload } from './photo-upload';
+import { CategorySelect } from './category-select';
+import { DescriptionField } from './description-field';
+import { AnonymousCheckbox } from './anonymous-checkbox';
+import { SubmitIssue } from './submit-issue';
+import { Category, categoryLabels } from '@/types/category';
+import { Bug } from 'lucide-react';
+import { createReport } from '@/app/server-actions/createReport';
+import { uploadToCloudinary } from '@/lib/cloudinaryUpload';
+import ReportCreateMap from '../Map/ReportCreateMap';
 
 interface IssueFormProps {
   selectedFiles: File[];
@@ -18,7 +20,6 @@ interface IssueFormProps {
   onRemoveFile: (index: number) => void;
   isAnonymous: boolean;
   setIsAnonymous: (value: boolean) => void;
-  location: { latitude: number; longitude: number } | null;
   userId?: string;
 }
 
@@ -28,18 +29,18 @@ export function IssueForm({
   onRemoveFile,
   isAnonymous,
   setIsAnonymous,
-  location,
   userId,
 }: IssueFormProps) {
   const [category, setCategory] = useState<Category>();
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState('');
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null); // ✅ Added
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationError, setLocationError] = useState(false);
 
   const handleSubmit = async () => {
     if (!location || !category) {
       setLocationError(!location);
-      alert("Please select both a category and a location.");
+      alert('Please select both a category and a location.');
       return;
     }
 
@@ -66,11 +67,11 @@ export function IssueForm({
         photoUrls,
       });
 
-      console.log("✅ Report submitted successfully");
-      alert("Issue reported successfully!");
+      console.log('✅ Report submitted successfully');
+      alert('Issue reported successfully!');
     } catch (error) {
-      console.error("❌ Error creating report:", error);
-      alert("Failed to submit the issue.");
+      console.error('❌ Error creating report:', error);
+      alert('Failed to submit the issue.');
     } finally {
       setIsSubmitting(false);
     }
@@ -86,6 +87,7 @@ export function IssueForm({
           Report New Issue
         </CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-6 overflow-y-auto">
         <PhotoUpload
           selectedFiles={selectedFiles}
@@ -102,6 +104,9 @@ export function IssueForm({
           onCheckedChange={setIsAnonymous}
         />
 
+        {/* 📍 Location Selector */}
+        <ReportCreateMap onLocationChange={setLocation} />
+
         {locationError && (
           <p className="text-red-500 text-sm -mt-2">
             📍 Please select a location on the map.
@@ -117,3 +122,4 @@ export function IssueForm({
     </Card>
   );
 }
+
