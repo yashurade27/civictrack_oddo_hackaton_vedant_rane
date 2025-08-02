@@ -11,6 +11,22 @@ import { Category, categoryLabels } from "@/types/category";
 import { Bug } from "lucide-react";
 import { createReport } from "@/app/server-actions/createReport";
 
+// 📷 Cloudinary upload helper
+async function uploadToCloudinary(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "your_upload_preset"); // <-- Change this
+  const response = await fetch(
+    "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+  const data = await response.json();
+  return data.secure_url;
+}
+
 interface IssueFormProps {
   selectedFiles: File[];
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -22,6 +38,9 @@ interface IssueFormProps {
 }
 
 export function IssueForm({
+  selectedFiles,
+  onFileUpload,
+  onRemoveFile,
   isAnonymous,
   setIsAnonymous,
   location,
@@ -30,41 +49,46 @@ export function IssueForm({
   const [category, setCategory] = useState<Category>();
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // ✅ Add file state and handlers
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    setSelectedFiles((prev) => [...prev, ...files].slice(0, 5));
-  };
-
-  const handleRemoveFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+  const [locationError, setLocationError] = useState(false);
 
   const handleSubmit = async () => {
     if (!location || !category) {
+      setLocationError(!location);
       alert("Please select both a category and a location.");
       return;
     }
 
     try {
       setIsSubmitting(true);
+      setLocationError(false);
 
+      // Upload images to Cloudinary
+      const photoUrls = (
+        await Promise.all(
+          selectedFiles.map(async (file) => {
+            try {
+              return await uploadToCloudinary(file);
+            } catch (e) {
+              console.error("Image upload failed for one file", e);
+              return null;
+            }
+          })
+        )
+      ).filter((url): url is string => !!url);
       await createReport({
-        title: categoryLabels[category], // 🏷️ Use label as title
+        title: categoryLabels[category],
         description,
-        category, // 👈 Pass enum directly
+        category,
         latitude: location.latitude,
         longitude: location.longitude,
         userId: isAnonymous ? undefined : userId,
+        photoUrls,
       });
 
-      // UX: Reset form or redirect
-      console.log("Report created successfully");
+      console.log("✅ Report submitted successfully");
+      alert("Issue reported successfully!");
     } catch (error) {
-      console.error("Error creating report:", error);
+      console.error("❌ Error creating report:", error);
       alert("Failed to submit the issue.");
     } finally {
       setIsSubmitting(false);
@@ -82,18 +106,26 @@ export function IssueForm({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6 overflow-y-auto">
-        {/* ✅ File upload component with handlers */}
         <PhotoUpload
           selectedFiles={selectedFiles}
-          onFileUpload={handleFileUpload}
-          onRemoveFile={handleRemoveFile}
+          onFileUpload={onFileUpload}
+          onRemoveFile={onRemoveFile}
         />
 
         <CategorySelect value={category} onValueChange={setCategory} />
 
         <DescriptionField value={description} onChange={setDescription} />
 
-        <AnonymousCheckbox checked={isAnonymous} onCheckedChange={setIsAnonymous} />
+        <AnonymousCheckbox
+          checked={isAnonymous}
+          onCheckedChange={setIsAnonymous}
+        />
+
+        {locationError && (
+          <p className="text-red-500 text-sm -mt-2">
+            📍 Please select a location on the map.
+          </p>
+        )}
 
         <SubmitIssue
           onSubmit={handleSubmit}

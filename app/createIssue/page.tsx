@@ -31,12 +31,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Navbar */}
       <Navbar />
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col md:flex-row">
-        {/* Map Section */}
         <div className="h-64 md:h-auto md:flex-1 md:p-4">
           <ReportCreateMap
             onLocationChange={({ latitude, longitude }) => {
@@ -44,17 +41,23 @@ export default function HomePage() {
             }}
           />
         </div>
-
-        {/* Form Section */}
         <div className="flex-1 md:w-96 md:flex-none p-4">
-          <IssueForm
-            selectedFiles={selectedFiles}
-            onFileUpload={handleFileUpload}
-            onRemoveFile={handleRemoveFile}
-            isAnonymous={isAnonymous}
-            setIsAnonymous={setIsAnonymous}
-            location={location}
-          />
+          {!location && (
+            <p className="text-red-500 text-sm mb-2">
+              ⚠️ Please select a location on the map before submitting.
+            </p>
+          )}
+
+          <div className="flex-1 md:w-96 md:flex-none p-4">
+            <IssueForm
+              selectedFiles={selectedFiles}
+              onFileUpload={handleFileUpload}
+              onRemoveFile={handleRemoveFile}
+              isAnonymous={isAnonymous}
+              setIsAnonymous={setIsAnonymous}
+              location={location}
+            />
+          </div>
         </div>
       </div>
     </div>

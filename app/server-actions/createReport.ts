@@ -1,17 +1,15 @@
 'use server';
 
-import prisma from '@/lib/prisma';
-import axios from 'axios';
-
-const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY as string;
+import { prisma } from '@/lib/prisma';
 
 export async function createReport({
   title,
   description,
-  category, 
+  category,
   latitude,
   longitude,
-  userId
+  userId,
+  photoUrls = [],
 }: {
   title: string;
   description: string;
@@ -19,30 +17,37 @@ export async function createReport({
   latitude: number;
   longitude: number;
   userId?: string;
+  photoUrls?: string[];
 }) {
   try {
-    const geoRes = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
-      params: {
-        latlng: `${latitude},${longitude}`,
-        key: GOOGLE_MAPS_API_KEY,
-      },
-    });
+    // Reverse geocode using OpenStreetMap
+    const nominatimRes = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+      {
+        headers: {
+          'User-Agent': 'civic-track-app/1.0 (your@email.com)',
+        },
+      }
+    );
 
-    const result = geoRes.data.results?.[0];
-    const address = result?.formatted_address ?? null;
-    const placeId = result?.place_id ?? null;
+    const data = await nominatimRes.json();
 
-    const get = (type: string) =>
-      result?.address_components?.find((c: any) => c.types.includes(type))?.long_name;
+    const address = data.display_name || null;
+    const placeId = data.place_id?.toString() || null;
+    const locality =
+      data.address?.city ||
+      data.address?.town ||
+      data.address?.village ||
+      data.address?.suburb ||
+      null;
+    const postalCode = data.address?.postcode || null;
 
-    const locality = get('locality');
-    const postalCode = get('postal_code');
-
+    // Create report with attached photos
     const report = await prisma.report.create({
       data: {
         title,
         description,
-        category: category as any, 
+        category: category as any,
         latitude,
         longitude,
         address,
@@ -50,9 +55,16 @@ export async function createReport({
         locality,
         postalCode,
         user: userId ? { connect: { id: userId } } : undefined,
+        photos: {
+          create: photoUrls.map((url) => ({ url })),
+        },
+      },
+      include: {
+        photos: true,
       },
     });
 
+    console.log('✅ Report created:', report);
     return report;
   } catch (err) {
     console.error('[CREATE_REPORT_ERROR]', err);
