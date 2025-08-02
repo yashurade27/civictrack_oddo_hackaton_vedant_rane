@@ -1,10 +1,15 @@
 "use client";
 
 import Image from "next/image";
+<<<<<<< HEAD
 import { MapPin, Clock, Tag, FileText, Activity } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+=======
+import { MapPin } from "lucide-react";
+import { UploadSection } from "./UploadSection";
+>>>>>>> origin/main
 import { ActivityTimeline } from "./ActivityTimeline";
 
 const statusVariants = {
