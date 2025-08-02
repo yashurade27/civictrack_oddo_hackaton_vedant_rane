@@ -10,22 +10,7 @@ import { SubmitIssue } from "./submit-issue";
 import { Category, categoryLabels } from "@/types/category";
 import { Bug } from "lucide-react";
 import { createReport } from "@/app/server-actions/createReport";
-
-// 📷 Cloudinary upload helper
-async function uploadToCloudinary(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", "your_upload_preset"); // <-- Change this
-  const response = await fetch(
-    "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
-  const data = await response.json();
-  return data.secure_url;
-}
+import { uploadToCloudinary } from "@/lib/cloudinaryUpload";
 
 interface IssueFormProps {
   selectedFiles: File[];
@@ -62,19 +47,15 @@ export function IssueForm({
       setIsSubmitting(true);
       setLocationError(false);
 
-      // Upload images to Cloudinary
-      const photoUrls = (
-        await Promise.all(
-          selectedFiles.map(async (file) => {
-            try {
-              return await uploadToCloudinary(file);
-            } catch (e) {
-              console.error("Image upload failed for one file", e);
-              return null;
-            }
-          })
-        )
-      ).filter((url): url is string => !!url);
+      // ✅ Upload each image to Cloudinary
+      const photoUrls: string[] = [];
+
+      for (const file of selectedFiles) {
+        const url = await uploadToCloudinary(file);
+        photoUrls.push(url);
+      }
+
+      // ✅ Submit to DB
       await createReport({
         title: categoryLabels[category],
         description,
