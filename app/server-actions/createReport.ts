@@ -8,7 +8,7 @@ const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY as string;
 export async function createReport({
   title,
   description,
-  category,
+  category, 
   latitude,
   longitude,
   userId
@@ -42,7 +42,7 @@ export async function createReport({
       data: {
         title,
         description,
-        category,
+        category: category as any, 
         latitude,
         longitude,
         address,

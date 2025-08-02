@@ -1,25 +1,22 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Upload, X, ImageIcon } from "lucide-react";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Upload, X, ImageIcon } from "lucide-react"
+interface PhotoUploadProps {
+  selectedFiles: File[];
+  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRemoveFile: (index: number) => void;
+}
 
-export function PhotoUpload() {
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
-    setSelectedFiles((prev) => [...prev, ...files].slice(0, 5))
-  }
-
-  const removeFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
-  }
-
+export function PhotoUpload({
+  selectedFiles,
+  onFileUpload,
+  onRemoveFile,
+}: PhotoUploadProps) {
   return (
     <div className="space-y-3">
       <Label className="text-sm font-medium">Add/Upload Photos</Label>
@@ -30,7 +27,7 @@ export function PhotoUpload() {
             type="file"
             multiple
             accept="image/*"
-            onChange={handleFileUpload}
+            onChange={onFileUpload}
             className="hidden"
             id="photo-upload"
           />
@@ -62,7 +59,7 @@ export function PhotoUpload() {
                   variant="destructive"
                   size="icon"
                   className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => removeFile(index)}
+                  onClick={() => onRemoveFile(index)}
                 >
                   <X className="w-3 h-3" />
                 </Button>
@@ -73,5 +70,5 @@ export function PhotoUpload() {
         </div>
       )}
     </div>
-  )
+  );
 }
