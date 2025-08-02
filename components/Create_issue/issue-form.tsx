@@ -1,18 +1,17 @@
 
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PhotoUpload } from './photo-upload';
-import { CategorySelect } from './category-select';
-import { DescriptionField } from './description-field';
-import { AnonymousCheckbox } from './anonymous-checkbox';
-import { SubmitIssue } from './submit-issue';
-import { Category, categoryLabels } from '@/types/category';
-import { Bug } from 'lucide-react';
-import { createReport } from '@/app/server-actions/createReport';
-import { uploadToCloudinary } from '@/lib/cloudinaryUpload';
-import ReportCreateMap from '../Map/ReportCreateMap';
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PhotoUpload } from "./photo-upload";
+import { CategorySelect } from "./category-select";
+import { DescriptionField } from "./description-field";
+import { AnonymousCheckbox } from "./anonymous-checkbox";
+import { SubmitIssue } from "./submit-issue";
+import { Category, categoryLabels } from "@/types/category";
+import { Bug } from "lucide-react";
+import { createReport } from "@/app/server-actions/createReport";
+import { uploadToCloudinary } from "@/lib/cloudinaryUpload";
 
 interface IssueFormProps {
   selectedFiles: File[];
