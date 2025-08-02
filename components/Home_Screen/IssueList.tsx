@@ -5,7 +5,8 @@ import { IssueCard } from "@/components/Home_Screen/IssueCard";
 
 const issues = [
   {
-    imageUrl: "/images/streetlight.jpg",
+    id: "1",
+    imageUrl: "https://cdn.pixabay.com/photo/2017/09/25/13/12/street-light-2784890_960_720.jpg",
     title: "Streetlight not working",
     description: "Street light not working since last 2 days",
     category: "Lighting",
@@ -15,6 +16,7 @@ const issues = [
     distance: "2.8",
   },
   {
+    id: "2",
     imageUrl: "/images/road_damage.jpg",
     title: "Road Potholes",
     description: "Large potholes on main road causing issues",
@@ -25,6 +27,7 @@ const issues = [
     distance: "1.4",
   },
   {
+    id: "3",
     imageUrl: "/images/garbage.jpg",
     title: "Garbage Overflow",
     description: "Garbage collection not done in this area",
