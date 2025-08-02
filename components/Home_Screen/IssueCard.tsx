@@ -16,7 +16,7 @@ interface IssueCardProps {
   distance: string;
 }
 
-const statusColorMap: Record<string, string> = {
+const statusColorMap: Record<IssueCardProps["status"], string> = {
   Reported: "bg-red-500 text-white",
   "In Progress": "bg-yellow-400 text-black",
   Resolved: "bg-green-500 text-white",
@@ -46,13 +46,17 @@ export function IssueCard({
       <CardContent className="p-4 space-y-2">
         <div className="flex items-center justify-between">
           <Badge>{category}</Badge>
-          <span className={`text-xs px-2 py-1 rounded-full ${statusColorMap[status]}`}>
+          <span
+            className={`text-xs px-2 py-1 rounded-full ${statusColorMap[status]}`}
+          >
             {status}
           </span>
         </div>
 
         <h3 className="text-base font-semibold line-clamp-1">{title}</h3>
-        <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
+        <p className="text-sm text-muted-foreground line-clamp-2">
+          {description}
+        </p>
 
         <div className="text-xs text-gray-500 flex items-center justify-between pt-2">
           <span className="flex items-center gap-1">

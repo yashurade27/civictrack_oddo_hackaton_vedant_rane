@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 
 export function FilterBar() {
   return (
-    <div className="w-full flex flex-wrap items-center gap-4 p-4 bg-white border rounded-lg shadow-sm mb-6">
+    <div className="w-full flex flex-wrap items-center gap-4 p-4 bg-white mb-6">
       <Select>
         <SelectTrigger className="w-40">
           <SelectValue placeholder="Category" />
@@ -24,9 +24,11 @@ export function FilterBar() {
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="Reported">Reported</SelectItem>
-          <SelectItem value="In Progress">In Progress</SelectItem>
-          <SelectItem value="Resolved">Resolved</SelectItem>
+          <SelectItem value="REPORTED">Reported</SelectItem>
+          <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+          <SelectItem value="RESOLVED">Resolved</SelectItem>
+          
+
         </SelectContent>
       </Select>
 
